@@ -10,16 +10,18 @@ defined_word: str = ""
 
 # Get the definition of a word from Merrim Webster Dictionary
 def definition(word: str):
-    try:
-        request = requests.get(f"https://www.merriam-webster.com/dictionary/{word}").text
-        soup = BeautifulSoup(request, 'html.parser')
-        text = soup.find('span', attrs={'class': 'dtText'}).text
-    except AttributeError:
-        pass
-    else:
-        global defined_word
-        defined_word = text
-        return text
+    if requests.get("https://www.merriam-webster.com/").status_code == 200:
+        try:
+            request = requests.get(f"https://www.merriam-webster.com/dictionary/{word}").text
+            soup = BeautifulSoup(request, 'html.parser')
+            text = soup.find('span', attrs={'class': 'dtText'}).text
+        except AttributeError:
+            pass
+        else:
+            global defined_word
+            defined_word = text
+            return text
+    return "Online Definition Unavailable"
 
 # Returns a random letter from the secret word
 def hint(text: str, guessed: list[str]):
