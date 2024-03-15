@@ -5,12 +5,16 @@ from random import choice
 from bs4 import BeautifulSoup
 from images import images
 
-# Global defined word so assignment can be done during game init
 defined_word: str = ""
 
-# Get the definition of a word from Merrim Webster Dictionary
 def definition(word: str):
-    if requests.get("https://www.merriam-webster.com/").status_code == 200:
+    try:
+        r = requests.get("https://www.merriam-webster.com/")
+        r.raise_for_status()
+    except requests.exceptions.ConnectionError:
+        defined_word = ": Online Definition Unavailable"
+        return "Online Definition Unavailable"
+    else:
         try:
             request = requests.get(f"https://www.merriam-webster.com/dictionary/{word}").text
             soup = BeautifulSoup(request, 'html.parser')
@@ -21,9 +25,7 @@ def definition(word: str):
             global defined_word
             defined_word = text
             return text
-    return "Online Definition Unavailable"
 
-# Returns a random letter from the secret word
 def hint(text: str, guessed: list[str]):
     help_hint = choice(text)
     while help_hint in guessed:
@@ -34,7 +36,7 @@ def hint(text: str, guessed: list[str]):
 def clear_screen():
     os.system('cls')
 
-# checks if the word text file is avaialble, if not will generate, choose a random word, ensure it is defined, if not choose another word
+
 def generate_word():
     try:
         with open("words.txt", mode="r") as file:
